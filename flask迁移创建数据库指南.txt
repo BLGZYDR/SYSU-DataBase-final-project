@@ -1,4 +1,4 @@
-1.在终端打开database文件夹
+1.在终端创建并打开database文件夹，把app.py放入
 2.确认文件夹里除了app.py没有其它文件夹了，如果有则先删除
 3.确保已经创建了数据库hotel_management
 4.终端执行 flask db init 初始化

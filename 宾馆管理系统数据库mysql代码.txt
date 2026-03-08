@@ -1,0 +1,131 @@
+CREATE DATABASE  hotel_management;
+USE hotel_management;
+--1.客人表
+CREATE TABLE IF NOT EXISTS guest (
+    guest_id INT AUTO_INCREMENT PRIMARY KEY,
+    guest_name VARCHAR(50) NOT NULL,
+    phone VARCHAR(100) NOT NULL UNIQUE,
+    id_card VARCHAR(100) NOT NULL UNIQUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. 操作员表
+CREATE TABLE IF NOT EXISTS operator (
+    operator_id INT AUTO_INCREMENT PRIMARY KEY,
+    account_name VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role_name ENUM('FRONT_DESK', 'ADMIN') NOT NULL DEFAULT 'FRONT_DESK'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 3. 房间表
+CREATE TABLE IF NOT EXISTS room (
+    room_id INT AUTO_INCREMENT PRIMARY KEY,
+    type_name ENUM('STANDARD', 'KING_BED', 'TWIN_BED', 'FAMILY_SUITE') NOT NULL,
+    base_price DECIMAL(10, 2) NOT NULL,
+    room_number VARCHAR(50) NOT NULL,
+    status ENUM('AVAILABLE', 'RESERVED', 'OCCUPIED') NOT NULL DEFAULT 'AVAILABLE',
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. 订单表
+CREATE TABLE IF NOT EXISTS `order` (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    guest_id INT NOT NULL,
+    order_status ENUM('BOOKED', 'CANCELLED', 'CHECKED_IN', 'COMPLETED') NOT NULL DEFAULT 'BOOKED',
+    total_people INT NOT NULL,
+    total_rooms INT NOT NULL,
+    expect_check_in_time DATE NOT NULL,
+    expect_check_out_time DATE NOT NULL,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    order_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (guest_id) REFERENCES guest(guest_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. 订单-客人关联表
+CREATE TABLE IF NOT EXISTS order_guest (
+    relation_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    guest_id INT NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES `order`(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (guest_id) REFERENCES guest(guest_id) ON DELETE CASCADE,
+    UNIQUE KEY (order_id, guest_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6. 订单-房间关联表
+CREATE TABLE IF NOT EXISTS order_room (
+    relation_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    room_id INT NOT NULL,
+    type_name ENUM('STANDARD', 'KING_BED', 'TWIN_BED', 'FAMILY_SUITE') NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES `order`(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES room(room_id) ON DELETE CASCADE,
+    UNIQUE KEY (order_id, room_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. 总体营收报表表
+CREATE TABLE IF NOT EXISTS total_revenue_report (
+    template_id INT AUTO_INCREMENT PRIMARY KEY,
+    operator_id INT NOT NULL,
+    orders_count INT NOT NULL,
+    total_guest INT NOT NULL,
+    total_revenue DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (operator_id) REFERENCES operator(operator_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 8. 房型营收报表表
+CREATE TABLE IF NOT EXISTS room_type_report (
+    template_id INT AUTO_INCREMENT PRIMARY KEY,
+    operator_id INT NOT NULL,
+    room_type ENUM('STANDARD', 'KING_BED', 'TWIN_BED', 'FAMILY_SUITE') NOT NULL,
+    total_revenue DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (operator_id) REFERENCES operator(operator_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 9. 当日营收报表表
+CREATE TABLE IF NOT EXISTS day_revenue_report (
+    template_id INT AUTO_INCREMENT PRIMARY KEY,
+    operator_id INT NOT NULL,
+    date DATE NOT NULL,
+    total_guest INT NOT NULL,
+    total_revenue DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (operator_id) REFERENCES operator(operator_id) ON DELETE CASCADE,
+    UNIQUE KEY (date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 10. 房型价格调整日志表
+CREATE TABLE IF NOT EXISTS room_type_price_change_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    operator_id INT NOT NULL,
+    room_type ENUM('STANDARD', 'KING_BED', 'TWIN_BED', 'FAMILY_SUITE') NOT NULL,
+    old_price DECIMAL(10, 2) NOT NULL,
+    new_price DECIMAL(10, 2) NOT NULL,
+    change_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (operator_id) REFERENCES operator(operator_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 11. 房间增减日志表
+CREATE TABLE IF NOT EXISTS room_add_delete_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    operator_id INT NOT NULL,
+    room_id INT NOT NULL,
+    room_number VARCHAR(50) NOT NULL,
+    type_name ENUM('STANDARD', 'KING_BED', 'TWIN_BED', 'FAMILY_SUITE') NOT NULL,
+    operation_type VARCHAR(10) NOT NULL,
+    operation_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (operator_id) REFERENCES operator(operator_id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES room(room_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 12. 房型调整日志表
+CREATE TABLE IF NOT EXISTS room_type_change_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    operator_id INT NOT NULL,
+    room_id INT NOT NULL,
+    room_number VARCHAR(50) NOT NULL,
+    old_type ENUM('STANDARD', 'KING_BED', 'TWIN_BED', 'FAMILY_SUITE') NOT NULL,
+    new_type ENUM('STANDARD', 'KING_BED', 'TWIN_BED', 'FAMILY_SUITE') NOT NULL,
+    change_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (operator_id) REFERENCES operator(operator_id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES room(room_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

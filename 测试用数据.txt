@@ -1,0 +1,48 @@
+use hotel_management;
+-- 插入操作员数据（operator表）
+INSERT INTO operator (account_name, password, role_name) VALUES 
+('admin', '123456', 'admin'), 
+('frontdesk', '123456', 'front_desk'); 
+
+-- 插入客人数据（guest表）
+INSERT INTO guest (guest_name, phone, id_card) VALUES 
+('张三', '13812345678', '110101199001011234'),
+('李四', '13987654321', '110102198512312345'),
+('王五', '13698765432', '310104198203045678'),
+('赵六', '13712349876', '440301197511116789'),
+('钱七', '13567891234', '350102199509091234'),
+('孙八', '15123456789', '420111198808081234'),
+('周九', '18912345678', '500101199912121234'),
+('吴十', '18234567890', '330102197702281234'),
+('郑十一', '18612345678', '610112198405051234'),
+('王芳', '13345678901', '220104199311111234');
+
+-- 插入房间数据（room表）
+INSERT INTO room (type_name, base_price, room_number, status, is_deleted) VALUES 
+-- 标准房
+('standard', 299.00, '101', 'available',0),
+('standard', 299.00, '102', 'available',0),
+('standard', 299.00, '103', 'available',0),
+('standard', 299.00, '104', 'available',0),
+('standard', 299.00, '105', 'available',0),
+
+-- 大床房
+('king_bed', 399.00, '201', 'available',0),
+('king_bed', 399.00, '202', 'available',0),
+('king_bed', 399.00, '203', 'available',0),
+('king_bed', 399.00, '204', 'available',0),
+('king_bed', 399.00, '205', 'available',0),
+
+-- 双床房
+('twin_bed', 459.00, '301', 'available',0),
+('twin_bed', 459.00, '302', 'available',0),
+('twin_bed', 459.00, '303', 'available',0),
+('twin_bed', 459.00, '304', 'available',0),
+('twin_bed', 459.00, '305', 'available',0),
+
+-- 家庭套房
+('family_suite', 899.00, '401', 'available',0),
+('family_suite', 899.00, '402', 'available',0),
+('family_suite', 899.00, '403', 'available',0),
+('family_suite', 899.00, '404', 'available',0),
+('family_suite', 899.00, '405', 'available',0);

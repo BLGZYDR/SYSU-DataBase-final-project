@@ -1,0 +1,8 @@
+1.在终端打开database文件夹
+2.确认文件夹里除了app.py没有其它文件夹了，如果有则先删除
+3.确保已经创建了数据库hotel_management
+4.终端执行 flask db init 初始化
+5.终端执行 flask db migrate 进行迁移
+6.终端执行 flask db upgrade 完成表的创建
+
+或者直接使用宾馆管理系统数据库mysql代码
